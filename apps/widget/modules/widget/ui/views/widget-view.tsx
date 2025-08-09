@@ -3,6 +3,8 @@ import { WidgetAuthScreen } from "../screens/widget-auth-screen";
 import { screenAtom } from "../../atoms/widget-atoms";
 import { WidgetErrorScreen } from "../screens/widget-error-screen";
 import { WidgetLoadingScreen } from "../screens/widget-loading-screen";
+import { WidgetSelectionScreen } from "../screens/widget-selection-screen";
+import { WidgetChatScreen } from "../screens/widget-chat-screen";
 
 export const WidgetView = ({
   organizationId,
@@ -14,11 +16,11 @@ export const WidgetView = ({
   const screenComponents = {
     loading: <WidgetLoadingScreen organizationId={organizationId} />,
     error: <WidgetErrorScreen />,
-    selection: <p>TODO: Selection</p>,
+    selection: <WidgetSelectionScreen />,
     voice: <p>TODO: Voice</p>,
     auth: <WidgetAuthScreen />,
     inbox: <p>TODO: Inbox</p>,
-    chat: <p>TODO: Chat</p>,
+    chat: <WidgetChatScreen />,
     contact: <p>TODO: Contact</p>,
   };
 
