@@ -20,6 +20,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import {
   organizationIdAtom,
   contactSessionIdAtomFamily,
+  screenAtom,
 } from "@/modules/widget/atoms/widget-atoms";
 
 const formSchema = z.object({

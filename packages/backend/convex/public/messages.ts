@@ -3,6 +3,9 @@ import { action, query } from "../_generated/server";
 import { components, internal } from "../_generated/api";
 import { supportAgent } from "../system/ai/agents/supportAgent";
 import { paginationOptsValidator } from "convex/server";
+import { escalateConversation } from "../system/ai/tools/escalateConversation";
+import { resolveConversation } from "../system/ai/tools/resolveConversation";
+import { saveMessage } from "@convex-dev/agent";
 // import { escalateConversation } from "../system/ai/tools/escalateConversation";
 // import { resolveConversation } from "../system/ai/tools/resolveConversation";
 // import { saveMessage } from "@convex-dev/agent";
@@ -62,28 +65,30 @@ export const create = action({
     //   }
     // );
 
-    // const shouldTriggerAgent =
-    //   conversation.status === "unresolved" && subscription?.status === "active";
+    const shouldTriggerAgent = conversation.status === "unresolved";
+    // && subscription?.status === "active";
 
-    // if (shouldTriggerAgent) {
-    await supportAgent.generateText(
-      ctx,
-      { threadId: args.threadId },
-      {
+    if (shouldTriggerAgent) {
+      await supportAgent.generateText(
+        ctx,
+        { threadId: args.threadId },
+        {
+          prompt: args.prompt,
+          tools: {
+            // escalateConversationTool: escalateConversation,
+            // resolveConversationTool: resolveConversation,
+            // searchTool: search,
+            escalateConversation,
+            resolveConversation,
+          },
+        }
+      );
+    } else {
+      await saveMessage(ctx, components.agent, {
+        threadId: args.threadId,
         prompt: args.prompt,
-        //   tools: {
-        //     escalateConversationTool: escalateConversation,
-        //     resolveConversationTool: resolveConversation,
-        //     searchTool: search,
-        //   },
-      }
-    );
-    // } else {
-    //   await saveMessage(ctx, components.agent, {
-    //     threadId: args.threadId,
-    //     prompt: args.prompt,
-    //   });
-    // }
+      });
+    }
   },
 });
 
