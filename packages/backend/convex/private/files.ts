@@ -166,68 +166,68 @@ export const addFile = action({
   },
 });
 
-// export const list = query({
-//   args: {
-//     category: v.optional(v.string()),
-//     paginationOpts: paginationOptsValidator,
-//   },
-//   handler: async (ctx, args) => {
-//     const identity = await ctx.auth.getUserIdentity();
+export const list = query({
+  args: {
+    category: v.optional(v.string()),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
 
-//     if (identity === null) {
-//       throw new ConvexError({
-//         code: "UNAUTHORIZED",
-//         message: "Identity not found",
-//       });
-//     }
+    if (identity === null) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Identity not found",
+      });
+    }
 
-//     const orgId = identity.orgId as string;
+    const orgId = identity.orgId as string;
 
-//     if (!orgId) {
-//       throw new ConvexError({
-//         code: "UNAUTHORIZED",
-//         message: "Organization not found",
-//       });
-//     }
+    if (!orgId) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Organization not found",
+      });
+    }
 
-//     const namespace = await rag.getNamespace(ctx, {
-//       namespace: orgId,
-//     });
+    const namespace = await rag.getNamespace(ctx, {
+      namespace: orgId,
+    });
 
-//     if (!namespace) {
-//       return { page: [], isDone: true, continueCursor: "" };
-//     }
+    if (!namespace) {
+      return { page: [], isDone: true, continueCursor: "" };
+    }
 
-//     const results = await rag.list(ctx, {
-//       namespaceId: namespace.namespaceId,
-//       paginationOpts: args.paginationOpts,
-//     });
+    const results = await rag.list(ctx, {
+      namespaceId: namespace.namespaceId,
+      paginationOpts: args.paginationOpts,
+    });
 
-//     const files = await Promise.all(
-//       results.page.map((entry) => convertEntryToPublicFile(ctx, entry))
-//     );
+    const files = await Promise.all(
+      results.page.map((entry) => convertEntryToPublicFile(ctx, entry))
+    );
 
-//     const filteredFiles = args.category
-//       ? files.filter((file) => file.category === args.category)
-//       : files;
+    const filteredFiles = args.category
+      ? files.filter((file) => file.category === args.category)
+      : files;
 
-//     return {
-//       page: filteredFiles,
-//       isDone: results.isDone,
-//       continueCursor: results.continueCursor,
-//     };
-//   },
-// });
+    return {
+      page: filteredFiles,
+      isDone: results.isDone,
+      continueCursor: results.continueCursor,
+    };
+  },
+});
 
-// export type PublicFile = {
-//   id: EntryId;
-//   name: string;
-//   type: string;
-//   size: string;
-//   status: "ready" | "processing" | "error";
-//   url: string | null;
-//   category?: string;
-// };
+export type PublicFile = {
+  id: EntryId;
+  name: string;
+  type: string;
+  size: string;
+  status: "ready" | "processing" | "error";
+  url: string | null;
+  category?: string;
+};
 
 type EntryMetadata = {
   storageId: Id<"_storage">;
@@ -236,57 +236,57 @@ type EntryMetadata = {
   category: string | null;
 };
 
-// async function convertEntryToPublicFile(
-//   ctx: QueryCtx,
-//   entry: Entry
-// ): Promise<PublicFile> {
-//   const metadata = entry.metadata as EntryMetadata | undefined;
-//   const storageId = metadata?.storageId;
+async function convertEntryToPublicFile(
+  ctx: QueryCtx,
+  entry: Entry
+): Promise<PublicFile> {
+  const metadata = entry.metadata as EntryMetadata | undefined;
+  const storageId = metadata?.storageId;
 
-//   let fileSize = "unknown";
+  let fileSize = "unknown";
 
-//   if (storageId) {
-//     try {
-//       const storageMetadata = await ctx.db.system.get(storageId);
-//       if (storageMetadata) {
-//         fileSize = formatFileSize(storageMetadata.size);
-//       }
-//     } catch (error) {
-//       console.error("Failed to get storage metadata: ", error);
-//     }
-//   }
+  if (storageId) {
+    try {
+      const storageMetadata = await ctx.db.system.get(storageId);
+      if (storageMetadata) {
+        fileSize = formatFileSize(storageMetadata.size);
+      }
+    } catch (error) {
+      console.error("Failed to get storage metadata: ", error);
+    }
+  }
 
-//   const filename = entry.key || "Unknown";
-//   const extension = filename.split(".").pop()?.toLowerCase() || "txt";
+  const filename = entry.key || "Unknown";
+  const extension = filename.split(".").pop()?.toLowerCase() || "txt";
 
-//   let status: "ready" | "processing" | "error" = "error";
-//   if (entry.status === "ready") {
-//     status = "ready";
-//   } else if (entry.status === "pending") {
-//     status = "processing";
-//   }
+  let status: "ready" | "processing" | "error" = "error";
+  if (entry.status === "ready") {
+    status = "ready";
+  } else if (entry.status === "pending") {
+    status = "processing";
+  }
 
-//   const url = storageId ? await ctx.storage.getUrl(storageId) : null;
+  const url = storageId ? await ctx.storage.getUrl(storageId) : null;
 
-//   return {
-//     id: entry.entryId,
-//     name: filename,
-//     type: extension,
-//     size: fileSize,
-//     status,
-//     url,
-//     category: metadata?.category || undefined,
-//   };
-// }
+  return {
+    id: entry.entryId,
+    name: filename,
+    type: extension,
+    size: fileSize,
+    status,
+    url,
+    category: metadata?.category || undefined,
+  };
+}
 
-// function formatFileSize(bytes: number): string {
-//   if (bytes === 0) {
-//     return "0 B";
-//   }
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) {
+    return "0 B";
+  }
 
-//   const k = 1024;
-//   const sizes = ["B", "KB", "MB", "GB"];
-//   const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-//   return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
-// }
+  return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
+}
