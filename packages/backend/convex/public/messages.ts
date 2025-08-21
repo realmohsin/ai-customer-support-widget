@@ -6,6 +6,7 @@ import { paginationOptsValidator } from "convex/server";
 import { escalateConversation } from "../system/ai/tools/escalateConversation";
 import { resolveConversation } from "../system/ai/tools/resolveConversation";
 import { saveMessage } from "@convex-dev/agent";
+import { search } from "../system/ai/tools/search";
 // import { escalateConversation } from "../system/ai/tools/escalateConversation";
 // import { resolveConversation } from "../system/ai/tools/resolveConversation";
 // import { saveMessage } from "@convex-dev/agent";
@@ -75,11 +76,9 @@ export const create = action({
         {
           prompt: args.prompt,
           tools: {
-            // escalateConversationTool: escalateConversation,
-            // resolveConversationTool: resolveConversation,
-            // searchTool: search,
-            escalateConversation,
-            resolveConversation,
+            escalateConversationTool: escalateConversation,
+            resolveConversationTool: resolveConversation,
+            searchTool: search,
           },
         }
       );
