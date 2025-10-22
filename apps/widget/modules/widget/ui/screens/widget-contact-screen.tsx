@@ -58,7 +58,7 @@ export const WidgetContactScreen = () => {
             variant="outline"
           >
             {copied ? (
-              <>
+              <> 
                 <CheckIcon className="mr-2 size-4" />
                 Copied!
               </>
