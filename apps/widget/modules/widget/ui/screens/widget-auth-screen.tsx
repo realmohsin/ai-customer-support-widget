@@ -83,7 +83,7 @@ export const WidgetAuthScreen = () => {
     <>
       <WidgetHeader>
         <div className="flex flex-col justify-between gap-y-2 px-2 py-6 font-semibold">
-          <p className="font-semibold text-3xl">Hi there! 👋</p>
+          <p className="font-semibold text-2xl text-[#64ffda]">VapiBank Customer Support</p>
           <p className="text-lg">Let&apos;s get you started</p>
         </div>
       </WidgetHeader>

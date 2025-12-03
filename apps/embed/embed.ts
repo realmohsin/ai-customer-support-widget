@@ -5,6 +5,7 @@ import { chatBubbleIcon, closeIcon } from "./icons";
     let iframe: HTMLIFrameElement | null = null;
     let container: HTMLDivElement | null = null;
     let button: HTMLButtonElement | null = null;
+    let overlay: HTMLDivElement | null = null;
     let isOpen = false;
 
     // Get configuration from script tag
@@ -39,7 +40,7 @@ import { chatBubbleIcon, closeIcon } from "./icons";
     // Exit if no organization ID
     if (!organizationId) {
         console.error(
-            "Echo Widget: data-organization-id attribute is required",
+            "Sonar Widget: data-organization-id attribute is required",
         );
         return;
     }
@@ -55,7 +56,7 @@ import { chatBubbleIcon, closeIcon } from "./icons";
     function render() {
         // Create floating action button
         button = document.createElement("button");
-        button.id = "echo-widget-button";
+        button.id = "sonar-widget-button";
         button.innerHTML = chatBubbleIcon;
         button.style.cssText = `
       position: fixed;
@@ -64,15 +65,15 @@ import { chatBubbleIcon, closeIcon } from "./icons";
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background: #3b82f6;
-      color: white;
+      background: #0a192f;
+      color: #64ffda;
       border: none;
       cursor: pointer;
       z-index: 999999;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 24px rgba(59, 130, 246, 0.35);
+      box-shadow: 0 4px 24px rgba(100, 255, 218, 0.35);
       transition: all 0.2s ease;
     `;
 
@@ -86,9 +87,24 @@ import { chatBubbleIcon, closeIcon } from "./icons";
 
         document.body.appendChild(button);
 
+        // Create backdrop overlay (hidden by default)
+        overlay = document.createElement("div");
+        overlay.id = "sonar-widget-overlay";
+        overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 25, 47, 0.5);
+      z-index: 999997;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    `;
+        overlay.addEventListener("click", hide);
+        document.body.appendChild(overlay);
+
         // Create container (hidden by default)
         container = document.createElement("div");
-        container.id = "echo-widget-container";
+        container.id = "sonar-widget-container";
         container.style.cssText = `
       position: fixed;
       ${position === "bottom-right" ? "right: 20px;" : "left: 20px;"}
@@ -159,9 +175,11 @@ import { chatBubbleIcon, closeIcon } from "./icons";
     function show() {
         if (container && button) {
             isOpen = true;
+            if (overlay) overlay.style.display = "block";
             container.style.display = "block";
             // Trigger animation
             setTimeout(() => {
+                if (overlay) overlay.style.opacity = "1";
                 if (container) {
                     container.style.opacity = "1";
                     container.style.transform = "translateY(0)";
@@ -177,13 +195,15 @@ import { chatBubbleIcon, closeIcon } from "./icons";
             isOpen = false;
             container.style.opacity = "0";
             container.style.transform = "translateY(10px)";
+            if (overlay) overlay.style.opacity = "0";
             // Hide after animation
             setTimeout(() => {
                 if (container) container.style.display = "none";
+                if (overlay) overlay.style.display = "none";
             }, 300);
             // Change button icon back to chat
             button.innerHTML = chatBubbleIcon;
-            button.style.background = "#3b82f6";
+            button.style.background = "#0a192f";
         }
     }
 
@@ -193,6 +213,10 @@ import { chatBubbleIcon, closeIcon } from "./icons";
             container.remove();
             container = null;
             iframe = null;
+        }
+        if (overlay) {
+            overlay.remove();
+            overlay = null;
         }
         if (button) {
             button.remove();
@@ -222,7 +246,7 @@ import { chatBubbleIcon, closeIcon } from "./icons";
     }
 
     // Expose API to global scope
-    (window as any).EchoWidget = {
+    (window as any).SonarWidget = {
         init: reinit,
         show,
         hide,
