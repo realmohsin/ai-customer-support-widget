@@ -252,7 +252,7 @@ import { useThreadMessages, toUIMessages } from "@convex-dev/agent/react";
 import { WidgetHeader } from "@/modules/widget/ui/components/widget-header";
 import { Button } from "@workspace/ui/components/button";
 import { useAtomValue, useSetAtom } from "jotai";
-import { ArrowLeftIcon, MenuIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { DicebearAvatar } from "@workspace/ui/components/dicebear-avatar";
 import { useInfiniteScroll } from "@workspace/ui/hooks/use-infinite-scroll";
 import { InfiniteScrollTrigger } from "@workspace/ui/components/infinite-scroll-trigger";
@@ -288,6 +288,16 @@ import { useMemo } from "react";
 const formSchema = z.object({
   message: z.string().min(1, "Message is required"),
 });
+
+const TypingIndicator = () => {
+  return (
+    <div className="flex items-center gap-x-1 py-1">
+      <span className="size-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.3s]" />
+      <span className="size-2 animate-bounce rounded-full bg-muted-foreground/60 [animation-delay:-0.15s]" />
+      <span className="size-2 animate-bounce rounded-full bg-muted-foreground/60" />
+    </div>
+  );
+};
 
 export const WidgetChatScreen = () => {
   const setScreen = useSetAtom(screenAtom);
@@ -347,6 +357,12 @@ export const WidgetChatScreen = () => {
       loadSize: 10,
     });
 
+  const uiMessages = toUIMessages(messages.results ?? []);
+  const isAgentResponding =
+    conversation?.status !== "resolved" &&
+    uiMessages.length > 0 &&
+    uiMessages[uiMessages.length - 1]?.role === "user";
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -371,16 +387,11 @@ export const WidgetChatScreen = () => {
 
   return (
     <>
-      <WidgetHeader className="flex items-center justify-between">
-        <div className="flex items-center gap-x-2">
-          <Button onClick={onBack} size="icon" variant="transparent">
-            <ArrowLeftIcon />
-          </Button>
-          <p>Chat</p>
-        </div>
-        <Button size="icon" variant="transparent">
-          <MenuIcon />
+      <WidgetHeader className="flex items-center gap-x-2">
+        <Button onClick={onBack} size="icon" variant="transparent">
+          <ArrowLeftIcon />
         </Button>
+        <p>Chat</p>
       </WidgetHeader>
       <AIConversation>
         <AIConversationContent>
@@ -390,7 +401,7 @@ export const WidgetChatScreen = () => {
             onLoadMore={handleLoadMore}
             ref={topElementRef}
           />
-          {toUIMessages(messages.results ?? [])?.map((message) => {
+          {uiMessages.map((message) => {
             return (
               <AIMessage
                 from={message.role === "user" ? "user" : "assistant"}
@@ -409,9 +420,17 @@ export const WidgetChatScreen = () => {
               </AIMessage>
             );
           })}
+          {isAgentResponding && (
+            <AIMessage from="assistant">
+              <AIMessageContent>
+                <TypingIndicator />
+              </AIMessageContent>
+              <DicebearAvatar imageUrl="/logo.svg" seed="assistant" size={32} />
+            </AIMessage>
+          )}
         </AIConversationContent>
       </AIConversation>
-      {toUIMessages(messages.results ?? [])?.length === 1 && (
+      {uiMessages.length === 1 && (
         <AISuggestions className="flex w-full flex-col items-end p-2">
           {suggestions.map((suggestion) => {
             if (!suggestion) {

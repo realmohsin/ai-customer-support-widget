@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "@workspace/ui/globals.css";
@@ -14,6 +15,11 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
+export const metadata: Metadata = {
+  title: "Sonar",
+  description: "Sonar admin dashboard",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +33,7 @@ export default function RootLayout({
                 <ClerkProvider
           appearance={{
             variables: {
-              colorPrimary: "#3C82F6"
+              colorPrimary: "#0A192F"
             }
           }}
         >
