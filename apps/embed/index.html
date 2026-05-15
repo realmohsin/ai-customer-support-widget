@@ -3,6 +3,8 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <title>Demo of AI Customer Support Widget</title>
         <style>
             * {
@@ -190,25 +192,27 @@
             </div>
         </div>
 
-        <!-- Load the widget with default config -->
+        <!--
+            In dev, this loads the TypeScript source (Vite transpiles it on the fly).
+            On build, the emit-demo-html plugin rewrites this tag to load the built
+            /widget.iife.js bundle instead (see vite.config.ts).
+        -->
         <script
             type="module"
             src="/embed.ts"
             data-organization-id="org_3EpgJUlONn0tBNT5Q6Ui8ol5F5z"
         ></script>
 
-        <script type="module">
-            import { EMBED_CONFIG } from "./config.ts";
+        <script>
+            const DEFAULT_ORG_ID = "org_3EpgJUlONn0tBNT5Q6Ui8ol5F5z";
 
-            // Set display values on load
-            document.getElementById("orgId").value =
-                EMBED_CONFIG.DEFAULT_ORG_ID;
+            document.getElementById("orgId").value = DEFAULT_ORG_ID;
 
             window.initWidget = function () {
                 const config = {
                     organizationId:
                         document.getElementById("orgId").value ||
-                        EMBED_CONFIG.DEFAULT_ORG_ID,
+                        DEFAULT_ORG_ID,
                     position: document.getElementById("position").value,
                 };
 
